@@ -1,3 +1,5 @@
+// src/pages/Home.jsx
+
 import React, { useState, useEffect } from 'react';
 import {
   FaHome,
@@ -23,9 +25,8 @@ import Vacancies from './Vacancies';
 import Users from './Users';
 import NewPost from './NewPost';
 import Head from './Head';
-import Todo from '../pages/Todo';
 import ToLessonCard from './ToLessonCard';
-
+import Todo from '../pages/Todo'
 // 🟦 Header komponent
 import UserInHeader from '../components/userInHeader';
 
@@ -34,7 +35,6 @@ function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // 📦 localStorage orqali oxirgi sahifani tiklash
   useEffect(() => {
     const savedPage = localStorage.getItem('activePage');
     if (savedPage) {
@@ -42,7 +42,6 @@ function Home() {
     }
   }, []);
 
-  // 📱 Responsive rejimni aniqlash
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
@@ -54,14 +53,12 @@ function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 🔁 Sahifani tanlash va localStorage ga yozish
   const handleNavClick = (key) => {
     setActivePage(key);
     localStorage.setItem('activePage', key);
     if (isMobile) setMenuOpen(false);
   };
 
-  // 🔃 Sahifalarni chiqarish
   const renderContent = () => {
     switch (activePage) {
       case 'head': return <Head />;
@@ -73,7 +70,7 @@ function Home() {
       case 'vacancies': return <Vacancies />;
       case 'plan': return <Plan />;
       case 'profile': return <Profile />;
-      case 'todo': return <Todo />;
+      case 'todo': return <Todo />; // ✅ BU ISHLAYDI ENDI
       case 'toLessons': return <ToLessonCard />;
       case 'home':
       default: return <NetChatLanding />;
@@ -103,7 +100,6 @@ function Home() {
 
   return (
     <div className="bg-gradient-to-br from-gray-50 to-purple-50 h-[calc(20vh--550px)]">
-      {/* HEADER */}
       {isMobile ? (
         <div className="flex items-center justify-between p-4 bg-white shadow-md fixed top-0 left-0 right-0 z-30">
           <div className="flex items-center gap-3">
@@ -124,9 +120,7 @@ function Home() {
         <UserInHeader menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
       )}
 
-      {/* BODY */}
       <div className="relative">
-        {/* SIDEBAR */}
         <div
           className={`bg-white z-40 shadow-lg transition-all duration-500 ease-in-out
           ${isMobile
@@ -163,7 +157,6 @@ function Home() {
           </nav>
         </div>
 
-        {/* MAIN CONTENT */}
         <div
           className="transition-all duration-300"
           style={{

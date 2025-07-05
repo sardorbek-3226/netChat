@@ -9,31 +9,35 @@ function UserInHeader({ menuOpen, setMenuOpen }) {
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
-  const { user, login, logout } = useAuth()
+  const { user, login, logout ,email} = useAuth()
   
   const fetchUser = async () => {
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
     if (!token || user) {
-      setLoading(false)
+      setLoading(false);
+      return;
     }
-        
+  
     try {
       const res = await axios.get("http://18.139.0.163:8080/api/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
+      console.log(res.data);
       
-      const userData = res.data.user || res.data
-      
-      login(userData)
+      const userData = res.data.user || res.data;
+      login(userData);
     } catch (err) {
-      console.error("Foydalanuvchini olishda xatolik:", err)
-      logout()
+      console.error("Foydalanuvchini olishda xatolik:", err);
+  
+      if (err?.response?.status === 401) {
+        logout(); // faqat haqiqatan token noto‘g‘ri bo‘lsa
+      }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
 
   useEffect(() => {
@@ -69,7 +73,7 @@ function UserInHeader({ menuOpen, setMenuOpen }) {
         ) : user ? (
           <>
             <p className="text-black font-semibold">
-              👋 {user?.email || "Foydalanuvchi"}
+              👋 {email || "Imam salom"}
             </p>
             <Button onClick={handleLogout} variant="outline">
               Chiqish

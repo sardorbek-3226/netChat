@@ -46,7 +46,8 @@ const ChatApp = () => {
       }
 
       const data = await res.json();
-
+      console.log(data);
+      
       if (Array.isArray(data)) {
         const msgs = [];
         data.forEach((item) => {

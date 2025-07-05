@@ -1,236 +1,204 @@
-import React, { useEffect, useState } from "react";
-import EventCard from "../components/EventCard";
-import { FaPlus, FaPaperPlane, FaSearch, FaTimes } from "react-icons/fa";
+import { useForm } from "react-hook-form";
+import { toast, ToastContainer } from "react-toastify";
+import { useState } from "react";
+import { MapPin, Clock, Book, CheckCircle, Info, X } from "react-feather";
+import "react-toastify/dist/ReactToastify.css";
 
-const Plan = () => {
-  const [events, setEvents] = useState([]);
+const CreateEventModalPage = () => {
+  const [createdEvent, setCreatedEvent] = useState(null);
+  const [joined, setJoined] = useState(false);
+  const [extraClicked, setExtraClicked] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    date: "",
-    time: "",
-    location: "",
-    category: "TECHNOLOGY",
-  });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm();
 
-  const categories = [
-    "TECHNOLOGY",
-    "DESIGN",
-    "ENTREPRENEURSHIP",
-    "MARKETING",
-    "EDUCATION",
-    "NETWORKING",
-  ];
-
-  // ✅ GET - barcha eventlarni olish
-  useEffect(() => {
+  const onSubmit = async (data) => {
     const token = localStorage.getItem("token");
 
-    fetch("http://18.139.0.163:8080/api/events", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data.data)) {
-          setEvents(data.data);
-        } else {
-          console.error("Kutilmagan format:", data);
-        }
-      })
-      .catch((err) => console.error("GET xatolik:", err));
-  }, []);
+    if (!token) {
+      toast.error("Token topilmadi!");
+      return;
+    }
 
-  // 🔁 Form input
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  // 🔍 Qidiruv input
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value.toLowerCase());
-  };
-
-  // ✅ POST - yangi event qo‘shish
-  const submitEvent = (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
-
-    const isoDate = new Date(`${formData.date}T${formData.time}`).toISOString();
-
-    const payload = {
-      title: formData.title,
-      description: formData.description,
-      date: isoDate,
-      time: formData.time,
-      location: formData.location,
-      category: formData.category,
-    };
-
-    fetch("http://18.139.0.163:8080/api/events/create-events", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) {
-          console.error("Xatolik:", data);
-          throw new Error("Tadbir yaratilmadi");
-        }
-        setEvents((prev) => [...prev, data]);
-        setShowModal(false);
-        setFormData({
-          title: "",
-          description: "",
-          date: "",
-          time: "",
-          location: "",
-          category: "TECHNOLOGY",
-        });
-      })
-      .catch((err) => {
-        console.error("POST xatolik:", err.message);
-        alert("❌ Event yaratilmadi!");
+    try {
+      const res = await fetch("http://18.139.0.163:8080/api/events/create-events", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
       });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        toast.success("✅ Tadbir muvaffaqiyatli yaratildi!");
+        reset();
+        setCreatedEvent(result);
+        setJoined(false);
+        setExtraClicked(false);
+        setShowModal(false); // modalni yopish
+      } else {
+        const errors = result.message?.message || ["Noma’lum xato"];
+        toast.error(errors.join("\n"));
+      }
+    } catch (error) {
+      toast.error("❌ Server bilan ulanishda xato yuz berdi.");
+      console.error(error);
+    }
   };
 
-  // 🔍 Qidiruv filteri
-  const filteredEvents = events.filter(
-    (e) =>
-      e.title?.toLowerCase().includes(searchTerm) ||
-      e.description?.toLowerCase().includes(searchTerm)
-  );
+  const handleJoinClick = () => {
+    setJoined(true);
+    toast.success("🎉 Siz tadbirga qo‘shildingiz!");
+  };
+
+  const handleExtraClick = () => {
+    setExtraClicked(true);
+    toast.info("ℹ️ Qo‘shimcha tugma bosildi!");
+  };
 
   return (
-    <div className="px-4 py-6 max-w-7xl mx-auto">
-      {/* 🔍 Qidiruv + Qo‘shish */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <FaSearch className="text-gray-500" />
-          <input
-            type="text"
-            placeholder="Tadbir qidirish..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
+    <div className="px-4 py-6 max-w-5xl mx-auto">
+      {/* 📌 FORMNI OCHISH TUGMASI */}
+      <div className="text-center">
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition"
+          className="bg-indigo-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-indigo-700 transition"
         >
-          <FaPlus /> Yangi Event Qo‘shish
+          ➕ Yangi Tadbir Qo‘shish
         </button>
       </div>
 
-      {/* ✅ MODAL - Event qo‘shish */}
+      {/* 📋 MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white w-full max-w-md p-6 rounded-lg shadow-lg relative">
-            {/* ❌ Close Button */}
+        <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+          <div className="bg-white w-full max-w-2xl p-6 rounded-lg shadow-lg relative">
+            {/* ❌ Yopish tugmasi */}
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-2 right-3 text-gray-600 hover:text-red-600"
+              className="absolute top-3 right-4 text-red-600 hover:text-red-800"
             >
-              <FaTimes />
+              <X />
             </button>
 
-            <h2 className="text-xl font-semibold mb-4">📝 Yangi Tadbir</h2>
+            <h2 className="text-2xl font-bold text-center mb-6 text-indigo-700">🗓️ Yangi Tadbir Qo‘shish</h2>
 
-            <form onSubmit={submitEvent} className="grid gap-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="grid md:grid-cols-2 gap-4">
               <input
-                type="text"
-                name="title"
-                placeholder="Sarlavha"
-                value={formData.title}
-                onChange={handleChange}
-                className="p-2 border rounded"
-                required
-              />
-              <textarea
-                name="description"
-                placeholder="Tavsif"
-                value={formData.description}
-                onChange={handleChange}
-                className="p-2 border rounded"
-                rows={3}
-                required
+                {...register("title", { required: true })}
+                className="w-full px-4 py-2 border rounded-md"
+                placeholder="Tadbir nomi"
               />
               <input
                 type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                className="p-2 border rounded"
-                required
+                {...register("date", { required: true })}
+                className="w-full px-4 py-2 border rounded-md"
+              />
+              <textarea
+                {...register("description")}
+                className="w-full md:col-span-2 px-4 py-2 border rounded-md"
+                placeholder="Tadbir tavsifi"
               />
               <input
                 type="time"
-                name="time"
-                value={formData.time}
-                onChange={handleChange}
-                className="p-2 border rounded"
-                required
+                {...register("time", { required: true })}
+                className="w-full px-4 py-2 border rounded-md"
               />
               <input
-                type="text"
-                name="location"
+                {...register("location", { required: true })}
+                className="w-full px-4 py-2 border rounded-md"
                 placeholder="Joylashuv"
-                value={formData.location}
-                onChange={handleChange}
-                className="p-2 border rounded"
-                required
               />
               <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                className="p-2 border rounded"
-                required
+                {...register("category", { required: true })}
+                className="w-full md:col-span-2 px-4 py-2 border rounded-md"
               >
-                <option value="" disabled>
-                  Kategoriya tanlang
-                </option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
+                <option value="">📂 Kategoriya tanlang</option>
+                <option value="TECHNOLOGY">⚙️ Texnologiya</option>
+                <option value="DESIGN">🎨 Dizayn</option>
+                <option value="ENTREPRENEURSHIP">💼 Biznes</option>
+                <option value="MARKETING">📈 Marketing</option>
+                <option value="EDUCATION">📚 Ta’lim</option>
+                <option value="NETWORKING">🌐 Tarmoq</option>
               </select>
 
               <button
                 type="submit"
-                className="bg-green-600 text-white py-2 rounded hover:bg-green-700 flex items-center gap-2 justify-center"
+                disabled={isSubmitting}
+                className="md:col-span-2 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
               >
-                <FaPaperPlane /> Yuborish
+                {isSubmitting ? "⏳ Yuborilmoqda..." : "➕ Tadbirni Yaratish"}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* 🧾 Eventlar Grid ko‘rinishda */}
-      {filteredEvents.length === 0 ? (
-        <p className="text-gray-500 mt-10">Mos event topilmadi.</p>
-      ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEvents.map((event, index) => (
-            <EventCard key={index} event={event} />
-          ))}
+      {/* 🧾 Yaratilgan Event */}
+      {createdEvent && (
+        <div className="bg-white shadow-lg rounded-lg p-6 mt-8 border space-y-4">
+          <h3 className="text-2xl font-bold text-blue-700">{createdEvent.title}</h3>
+          <p className="text-gray-700">{createdEvent.description}</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <Clock size={16} /> {createdEvent.time}
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin size={16} /> {createdEvent.location}
+            </div>
+            <div className="flex items-center gap-2">
+              <Book size={16} /> Kategoriya: {createdEvent.category}
+            </div>
+            <div className="flex items-center gap-2">📅 Sana: {createdEvent.date}</div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 mt-4">
+            <button
+              onClick={handleJoinClick}
+              disabled={joined}
+              className={`w-full px-4 py-2 rounded-md text-white font-semibold transition ${
+                joined ? "bg-green-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {joined ? (
+                <span className="flex items-center gap-2 justify-center">
+                  <CheckCircle size={18} /> Qo‘shildingiz
+                </span>
+              ) : (
+                "Tadbirga Qo‘shilish"
+              )}
+            </button>
+
+            <button
+              onClick={handleExtraClick}
+              disabled={extraClicked}
+              className={`w-full px-4 py-2 rounded-md text-white font-semibold transition ${
+                extraClicked ? "bg-purple-600 cursor-not-allowed" : "bg-gray-600 hover:bg-gray-700"
+              }`}
+            >
+              {extraClicked ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Info size={18} /> Bosildi
+                </span>
+              ) : (
+                "Qo‘shimcha Tugma"
+              )}
+            </button>
+          </div>
         </div>
       )}
+
+      <ToastContainer />
     </div>
   );
 };
 
-export default Plan;
+export default CreateEventModalPage;

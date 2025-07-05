@@ -18,7 +18,7 @@ const Register = () => {
   });
 
   const [errorMessage, setErrorMessage] = useState("");
-  const [fieldErrors, setFieldErrors] = useState({}); // 🔴 Har bir field uchun error tracking
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,7 +27,6 @@ const Register = () => {
       [name]: value,
     }));
     
-    // Agar user yozishni boshlasa, o'sha fieldning errorini olib tashlash
     if (fieldErrors[name]) {
       setFieldErrors(prev => ({
         ...prev,
@@ -51,7 +50,6 @@ const Register = () => {
     e.preventDefault();
     setErrorMessage("");
     
-    // Validatsiya tekshirish
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -81,23 +79,22 @@ const Register = () => {
     }
   };
 
-  // Input classlarini dinamik ravishda o'zgartirish
   const getInputClass = (fieldName) => {
-    const baseClass = "w-full px-4 py-3 border rounded-xl transition-colors";
-    const errorClass = "border-red-500 border-2 focus:border-red-500 focus:ring-red-500";
-    const normalClass = "border-gray-300 focus:border-blue-500 focus:ring-blue-500";
-    
+    const baseClass = "w-full px-4 py-3 border rounded-lg transition-all duration-300 focus:outline-none focus:ring-2";
+    const errorClass = "border-red-500 focus:border-red-600 focus:ring-red-500";
+    const normalClass = "border-gray-300 focus:border-blue-600 focus:ring-blue-600";
+
     return `${baseClass} ${fieldErrors[fieldName] ? errorClass : normalClass}`;
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-cover bg-center bg-black/40">
-      <div className="max-w-[500px] w-full bg-white/30 backdrop-blur-md p-6 rounded-xl shadow-lg">
-        <h2 className="text-3xl text-center mb-6 font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-700 to-purple-800">
+      <div className="max-w-lg w-full bg-white/70 backdrop-blur-5xl p-8 rounded-3xl shadow-2xl">
+        <h2 className="text-4xl text-center mb-6 font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-800">
           Ro'yxatdan o'tish
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <input
               type="text"
@@ -106,7 +103,6 @@ const Register = () => {
               value={formData.name}
               onChange={handleChange}
               className={getInputClass('name')}
-              required
             />
             {fieldErrors.name && (
               <p className="text-red-600 text-sm mt-1 flex items-center">
@@ -124,7 +120,6 @@ const Register = () => {
               value={formData.username}
               onChange={handleChange}
               className={getInputClass('username')}
-              required
             />
             {fieldErrors.username && (
               <p className="text-red-600 text-sm mt-1 flex items-center">
@@ -142,7 +137,6 @@ const Register = () => {
               value={formData.email}
               onChange={handleChange}
               className={getInputClass('email')}
-              required
             />
             {fieldErrors.email && (
               <p className="text-red-600 text-sm mt-1 flex items-center">
@@ -160,7 +154,6 @@ const Register = () => {
               value={formData.password}
               onChange={handleChange}
               className={getInputClass('password')}
-              required
             />
             {fieldErrors.password && (
               <p className="text-red-600 text-sm mt-1 flex items-center">
@@ -176,7 +169,7 @@ const Register = () => {
             placeholder="Manzil (masalan: Tashkent, Uzbekistan)"
             value={formData.location}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-blue-600 focus:ring-blue-600"
           />
 
           <textarea
@@ -184,14 +177,14 @@ const Register = () => {
             placeholder="O'zingiz haqingizda qisqacha"
             value={formData.bio}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-blue-600 focus:ring-blue-600"
           />
 
-          <div className="space-y-2">
+          <div className="space-y-4">
             <Button
               type="submit"
               variant="destructive"
-              className="w-full py-3 rounded-xl"
+              className="w-full py-3 rounded-lg text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:bg-gradient-to-l transition-all"
             >
               Ro'yxatdan o'tish
             </Button>

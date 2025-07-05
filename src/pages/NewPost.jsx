@@ -90,15 +90,15 @@ const NewPost = () => {
   return (
     <div className="px-4 py-6 w-full">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <FaSearch className="text-gray-500" />
+        <div className="flex items-center gap-3 w-full md:w-auto relative">
           <input
             type="text"
             placeholder="Post qidirish..."
             value={searchTerm}
             onChange={handleSearch}
-            className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flex-1 p-2 border w-[600px] border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 "
           />
+          <FaSearch className="text-gray-500 absolute top-3 right-3 text-xl" />
         </div>
 
         <button

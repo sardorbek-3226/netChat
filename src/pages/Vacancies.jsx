@@ -29,6 +29,8 @@ function Vacancies() {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${token}` },
       });
+      console.log(res);
+      
       const data = await res.json();
       if (Array.isArray(data.data)) setJobs(data.data);
       else if (Array.isArray(data)) setJobs(data);
@@ -120,7 +122,7 @@ function Vacancies() {
             placeholder="Qidirish..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border rounded-xl"
+            className="w-full w-[600px] pl-10 pr-4 py-2 border rounded-xl"
           />
         </div>
         <button
@@ -134,15 +136,26 @@ function Vacancies() {
       {loading && <p><FiLoader className="inline animate-spin" /> Yuklanmoqda...</p>}
 
       {filteredJobs.map(job => (
-        <div key={job.id} className="bg-gray-100 p-4 rounded-lg mb-4 shadow">
-          <h3 className="text-xl font-semibold">{job.title}</h3>
-          <p><strong>Tavsif:</strong> {job.description}</p>
-          <p><strong>Manzil:</strong> {job.location}</p>
-          <p><strong>Maosh:</strong> ${job.salary}</p>
-          <p><strong>Talablar:</strong> {Array.isArray(job.requirements) ? job.requirements.join(', ') : job.requirements}</p>
-          <p className="text-sm text-gray-500">{new Date(job.createdAt).toLocaleString()}</p>
-        </div>
-      ))}
+  <div key={job.id} className="bg-white p-6 rounded-xl mb-6 shadow-md hover:shadow-xl transition-all">
+    <h3 className="text-2xl font-semibold text-gray-800">{job.title}</h3>
+    <p><strong className="font-medium text-gray-700">Tavsif:</strong> {job.description}</p>
+    <p><strong className="font-medium text-gray-700">Manzil:</strong> {job.location}</p>
+    <p><strong className="font-medium text-gray-700">Maosh:</strong> ${job.salary}</p>
+    <p><strong className="font-medium text-gray-700">Talablar:</strong> {Array.isArray(job.requirements) ? job.requirements.join(', ') : job.requirements}</p>
+    
+    <p className="text-sm text-gray-500 mt-2">
+      <span className="font-medium text-gray-700">E'lon qilindi:</span> {new Date(job.createdAt).toLocaleString()}
+    </p>
+
+    {/* Murojaat qilish uchun tugma */}
+    <div className="mt-4 flex justify-end">
+      <button className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition">
+        Murojaat qilish
+      </button>
+    </div>
+  </div>
+))}
+
 
       {!loading && filteredJobs.length === 0 && (
         <p className="text-center text-gray-500">🚫 Eʼlonlar topilmadi.</p>
@@ -169,7 +182,7 @@ function Vacancies() {
                     value={formData[field]}
                     onChange={handleChange}
                     className="mt-1 block w-full px-4 py-2 border rounded-xl focus:ring focus:border-blue-400"
-                    required
+                    required 
                   />
                 </label>
               ))}

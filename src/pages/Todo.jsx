@@ -1,206 +1,165 @@
-// src/pages/Todo.jsx
-import React, { useState } from "react"
+import { useForm } from "react-hook-form";
+import { toast, ToastContainer } from "react-toastify";
+import { useState } from "react";
+import { MapPin, Clock, Book, CheckCircle } from "react-feather";
+import "react-toastify/dist/ReactToastify.css";
 
-function Todo() {
-  const [columns, setColumns] = useState([
-    {
-      id: "todo",
-      title: "To Do",
-      tasks: [
-        { id: "1", text: "Design new landing page", completed: false },
-        { id: "2", text: "Setup project structure", completed: false },
-        { id: "3", text: "Create user authentication", completed: false },
-      ],
-    },
-    {
-      id: "inprogress",
-      title: "In Progress",
-      tasks: [
-        { id: "4", text: "API integration", completed: false },
-        { id: "5", text: "Database optimization", completed: false },
-      ],
-    },
-    {
-      id: "done",
-      title: "Done",
-      tasks: [
-        { id: "6", text: "Project planning", completed: true },
-        { id: "7", text: "Initial wireframes", completed: true },
-      ],
-    },
-  ])
+const Todo = ({ onAddTask }) => {
+  const [createdEvent, setCreatedEvent] = useState(null);
+  const [joined, setJoined] = useState(false);
 
-  const [newTaskText, setNewTaskText] = useState("")
-  const [activeColumn, setActiveColumn] = useState(null)
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm();
 
-  const addTask = (columnId) => {
-    if (!newTaskText.trim()) return
-    const newTask = {
-      id: Date.now().toString(),
-      text: newTaskText,
-      completed: false,
+  const onSubmit = async (data) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("Token topilmadi!");
+      return;
     }
 
-    setColumns((prev) =>
-      prev.map((col) =>
-        col.id === columnId
-          ? { ...col, tasks: [...col.tasks, newTask] }
-          : col
-      )
-    )
+    try {
+      const res = await fetch("http://18.139.0.163:8080/api/events/create-events", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
 
-    setNewTaskText("")
-    setActiveColumn(null)
-  }
+      const result = await res.json();
+      console.log("Backend javobi:", result); // 👈 Bu yerda tekshiring
 
-  const toggleTask = (columnId, taskId) => {
-    setColumns((prev) =>
-      prev.map((col) =>
-        col.id === columnId
-          ? {
-              ...col,
-              tasks: col.tasks.map((task) =>
-                task.id === taskId
-                  ? { ...task, completed: !task.completed }
-                  : task
-              ),
-            }
-          : col
-      )
-    )
-  }
+      if (res.ok) {
+        const eventData = result.data || result; // data ichida bo‘lishi mumkin
+        setCreatedEvent(eventData);
+        reset();
+        setJoined(false);
+        toast.success("Tadbir muvaffaqiyatli yaratildi!");
+        if (onAddTask) onAddTask(eventData);
+      } else {
+        const errors = result.message?.message || ["Noma’lum xato"];
+        toast.error(errors.join("\n"));
+      }
+    } catch (error) {
+      toast.error("Server bilan ulanishda xato yuz berdi.");
+      console.error(error);
+    }
+  };
 
-  const deleteTask = (columnId, taskId) => {
-    setColumns((prev) =>
-      prev.map((col) =>
-        col.id === columnId
-          ? { ...col, tasks: col.tasks.filter((task) => task.id !== taskId) }
-          : col
-      )
-    )
-  }
+  const handleJoinClick = () => {
+    setJoined(true);
+    toast.success("Siz tadbirga qo‘shildingiz!");
+  };
 
   return (
-    <div className="pt-24 min-h-screen relative overflow-x-hidden">
-      <div className="relative z-10 px-4 md:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-          {columns.map((column, columnIndex) => (
-            <div
-              key={column.id}
-              className={`bg-white rounded-2xl shadow-lg p-6 ${
-                columnIndex === 2 ? "lg:max-h-96" : "min-h-[300px]"
-              } flex flex-col`}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
-                  <h2 className="font-bold text-gray-800 text-lg">{column.title}</h2>
-                  <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                    {column.tasks.length}
-                  </span>
-                </div>
-              </div>
+    <div className="max-w-4xl mx-auto mt-10 px-4">
+      {/* FORM */}
+      <div className="bg-white shadow-md rounded-lg p-6 mb-8">
+        <h2 className="text-2xl font-bold text-center mb-6">Yangi Tadbir Qo‘shish</h2>
 
-              <div className="mb-4">
-                {activeColumn === column.id ? (
-                  <div className="space-y-3">
-                    <input
-                      type="text"
-                      value={newTaskText}
-                      onChange={(e) => setNewTaskText(e.target.value)}
-                      placeholder="Enter task name..."
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      onKeyDown={(e) => e.key === "Enter" && addTask(column.id)}
-                      autoFocus
-                    />
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => addTask(column.id)}
-                        className="px-3 py-1 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600"
-                      >
-                        Add
-                      </button>
-                      <button
-                        onClick={() => {
-                          setActiveColumn(null)
-                          setNewTaskText("")
-                        }}
-                        className="px-3 py-1 bg-gray-200 text-gray-600 text-sm rounded-lg hover:bg-gray-300"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setActiveColumn(column.id)}
-                    className="flex items-center space-x-2 text-blue-500 hover:text-blue-600 py-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    <span className="font-medium">Add a task</span>
-                  </button>
-                )}
-              </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="grid md:grid-cols-2 gap-4">
+          <input
+            {...register("title", { required: true })}
+            className="w-full px-4 py-2 border rounded-md"
+            placeholder="Tadbir nomi"
+          />
+          <input
+            type="date"
+            {...register("date", { required: true })}
+            className="w-full px-4 py-2 border rounded-md"
+          />
+          <textarea
+            {...register("description")}
+            className="w-full md:col-span-2 px-4 py-2 border rounded-md"
+            placeholder="Tadbir tavsifi"
+          />
+          <input
+            type="time"
+            {...register("time", { required: true })}
+            className="w-full px-4 py-2 border rounded-md"
+          />
+          <input
+            {...register("location", { required: true })}
+            className="w-full px-4 py-2 border rounded-md"
+            placeholder="Joylashuv"
+          />
+          <select
+            {...register("category", { required: true })}
+            className="w-full md:col-span-2 px-4 py-2 border rounded-md"
+          >
+            <option value="">Kategoriya tanlang</option>
+            <option value="TECHNOLOGY">Texnologiya</option>
+            <option value="DESIGN">Dizayn</option>
+            <option value="ENTREPRENEURSHIP">Biznes</option>
+            <option value="MARKETING">Marketing</option>
+            <option value="EDUCATION">Ta’lim</option>
+            <option value="NETWORKING">Tarmoq</option>
+          </select>
 
-              <div className="flex-1 space-y-3 overflow-y-auto">
-                {column.tasks.slice(0, columnIndex === 2 ? 4 : column.tasks.length).map((task) => (
-                  <div
-                    key={task.id}
-                    className="flex items-center space-x-3 py-2 group cursor-pointer"
-                    onClick={() => toggleTask(column.id, task.id)}
-                  >
-                    <button
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                        task.completed
-                          ? "bg-green-500 border-green-500 text-white"
-                          : "border-gray-300 hover:border-blue-500"
-                      }`}
-                    >
-                      {task.completed && (
-                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      )}
-                    </button>
-                    <span className={`flex-1 text-sm ${task.completed ? "text-gray-500 line-through" : "text-gray-800"}`}>
-                      {task.text}
-                    </span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        deleteTask(column.id, task.id)
-                      }}
-                      className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600"
-                    >
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-gray-200">
-                <div className="flex items-center justify-between">
-                  <span>{column.tasks.filter((t) => t.completed).length} completed</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="md:col-span-2 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+          >
+            {isSubmitting ? "Yuborilmoqda..." : "Tadbirni Yaratish"}
+          </button>
+        </form>
       </div>
-    </div>
-  )
-}
 
-export default Todo
+      {/* CREATED EVENT */}
+      {createdEvent && (
+        <div className="bg-white shadow-lg rounded-lg p-6 border space-y-3">
+          <h3 className="text-2xl font-bold text-blue-700">{createdEvent.title}</h3>
+          <p className="text-gray-700">{createdEvent.description}</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <Clock size={16} />
+              {createdEvent.time}
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin size={16} />
+              {createdEvent.location}
+            </div>
+            <div className="flex items-center gap-2">
+              <Book size={16} />
+              Kategoriya: {createdEvent.category}
+            </div>
+            <div className="flex items-center gap-2">
+              📅 Sana: {createdEvent.date}
+            </div>
+          </div>
+
+          {/* TADBIRGA QO‘SHILISH TUGMASI */}
+          <button
+            onClick={handleJoinClick}
+            disabled={joined}
+            className={`mt-4 px-4 py-2 rounded-md text-white font-semibold transition ${
+              joined ? "bg-green-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+            {joined ? (
+              <span className="flex items-center gap-1">
+                <CheckCircle size={16} /> Qo‘shildingiz
+              </span>
+            ) : (
+              "Tadbirga Qo‘shilish"
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* ToastContainer */}
+      <ToastContainer />
+    </div>
+  );
+};
+
+export default Todo;

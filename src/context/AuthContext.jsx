@@ -14,9 +14,11 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = (userData, token) => {
+  const login = (userData, token, email) => {
     localStorage.setItem("user", JSON.stringify(userData)); // userni to‘liq saqlaymiz
     localStorage.setItem("token", token); // token alohida saqlanadi
+      localStorage.setItem("email", email); // emailni ham saqlaymiz
+    
     setUser(userData);
   };
 

@@ -6,6 +6,7 @@ import {
   FaSearch,
   FaTimes,
 } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -60,18 +61,27 @@ const Users = () => {
     setFilteredUsers(users);
   };
 
+  // Bog'lanish tugmasi bosilganda Toast ko'rsatish
+  const handleConnectClick = (userName) => {
+    toast.success(`Siz ${userName} bilan bog'lanmoqdasiz!`, {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000, // 3 soniyadan keyin yopiladi
+    });
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-4">
       {/* Qidiruv */}
-      <div className="flex items-center gap-2 mb-6">
-        <FaSearch className="text-gray-400" />
+      <div className="flex items-center gap-2 mb-6 relative ">
         <input
           type="text"
           placeholder="Username bo‘yicha qidirish..."
           value={searchTerm}
           onChange={handleSearch}
-          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 pl-10"
         />
+        <FaSearch className="text-gray-400 top-2 text-xl  left-3    absolute" />
+
         {(searchTerm || selectedTag) && (
           <button
             onClick={clearFilter}
@@ -90,20 +100,29 @@ const Users = () => {
               key={user.id}
               className="bg-white p-5 rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all"
             >
-              <div className="flex items-center space-x-4 mb-4">
+              <div className="flex items-center space-x-6 mb-6 bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all">
                 <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-16 h-16 rounded-full object-cover"
+                  src="./img2.png"
+                  alt="User Profile"
+                  className="w-20 h-20 rounded-full object-cover border-4 border-blue-500 transition-transform transform hover:scale-105"
                 />
-                <div>
-                  <h2 className="text-xl font-bold">{user.name}</h2>
-                  <p className="text-gray-500 flex items-center gap-1">
-                    <FaUser /> @{user.username}
+                <div className="flex flex-col">
+                  <h2 className="text-2xl font-semibold text-gray-800">{user.name}</h2>
+                  <p className="text-sm text-gray-500 flex items-center gap-1">
+                    <FaUser className="text-gray-600" /> @{user.username}
                   </p>
-                  <p className="text-gray-500 flex items-center gap-1">
-                    <FaMapMarkerAlt /> {user.location}
+                  <p className="text-sm text-gray-500 flex items-center gap-1">
+                    <FaMapMarkerAlt className="text-gray-600" /> {user.location}
                   </p>
+                  {/* Bog'lanish tugmasi */}
+                  <div className="mt-4">
+                    <button
+                      onClick={() => handleConnectClick(user.name)} // Bog'lanish tugmasi bosilganda toast
+                      className="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all"
+                    >
+                      Bog'lanish
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -139,6 +158,9 @@ const Users = () => {
           </p>
         )}
       </div>
+
+      {/* ToastContainer */}
+      <ToastContainer />
     </div>
   );
 };
