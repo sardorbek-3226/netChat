@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa';
 import { MdOutlineWorkspacePremium } from "react-icons/md";
 import { Link } from 'react-router-dom';
-
+import PlansPage from './Plans';
 // 🟪 Sahifalar
 import NetChatLanding from '../components/NetChatLanding';
 import Mentors from './Mentors';
@@ -72,6 +72,7 @@ function Home() {
       case 'profile': return <Profile />;
       case 'todo': return <Todo />; // ✅ BU ISHLAYDI ENDI
       case 'toLessons': return <ToLessonCard />;
+      case 'premium': return <PlansPage />;
       case 'home':
       default: return <NetChatLanding />;
     }
@@ -82,12 +83,12 @@ function Home() {
     { key: 'messages', icon: <FaComments />, label: 'Xabarlar' },
     { key: 'newpost', icon: <FaPlusSquare />, label: 'Posts' },
     { key: 'users', icon: <FaUserFriends />, label: 'Foydalanuvchilar' },
-    { key: 'events', icon: <FaRegCalendarAlt />, label: 'Tadbirlar' },
     { key: 'mentors', icon: <FaChalkboardTeacher />, label: 'Mentorlar' },
     { key: 'vacancies', icon: <FaBriefcase />, label: 'Vakansiyalar' },
-    { key: 'plan', icon: <FaTasks />, label: 'Plan' },
+    { key: 'plan', icon: <FaTasks />, label: 'Tadbir' },
     { key: 'todo', icon: <FaTasks />, label: 'Todo' },
     { key: 'toLessons', icon: <FaChalkboardTeacher />, label: 'Darsliklar' },
+    { key: 'premium', icon: <MdOutlineWorkspacePremium />, label: 'Premium' },
     { key: 'profile', icon: <FaUserCircle />, label: 'Profil' },
   ];
 

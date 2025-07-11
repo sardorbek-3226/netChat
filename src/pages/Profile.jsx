@@ -36,15 +36,11 @@ function Profile() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="relative">
-                <img
-                  src="/placeholder.svg?height=80&width=80"
-                  alt="Profile"
-                  className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
-                />
+                <img src="./img3.png" alt="" className="h-20"/>
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white"></div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Alexa Rawles</h1>
+                <h1 className="text-2xl font-bold text-gray-800"></h1>
                 <p className="text-gray-600">alexarawles@gmail.com</p>
               </div>
             </div>

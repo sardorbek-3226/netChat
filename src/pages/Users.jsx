@@ -80,7 +80,7 @@ const Users = () => {
           onChange={handleSearch}
           className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 pl-10"
         />
-        <FaSearch className="text-gray-400 top-2 text-xl  left-3    absolute" />
+        <FaSearch className="text-gray-400 top-3 text-xl  left-3    absolute" />
 
         {(searchTerm || selectedTag) && (
           <button

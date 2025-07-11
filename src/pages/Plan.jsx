@@ -1,13 +1,12 @@
 import { useForm } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
-import { useState } from "react";
-import { MapPin, Clock, Book, CheckCircle, Info, X } from "react-feather";
+import { useEffect, useState } from "react";
+import { MapPin, Clock, Book, X } from "react-feather";
+import { FaSearch } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 
 const CreateEventModalPage = () => {
-  const [createdEvent, setCreatedEvent] = useState(null);
-  const [joined, setJoined] = useState(false);
-  const [extraClicked, setExtraClicked] = useState(false);
+  const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
   const {
@@ -17,11 +16,44 @@ const CreateEventModalPage = () => {
     formState: { isSubmitting },
   } = useForm();
 
+  // ✅ GET: Tadbirlarni olish
+  const fetchEvents = async () => {
+    console.log("🚀 fetchEvents called");
+
+    const token = localStorage.getItem("token");
+    console.log("🎟️ Token:", token);
+
+    if (!token) return toast.error("Token topilmadi!");
+
+    try {
+      const res = await fetch("http://18.139.0.163:8080/api/events", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("🌐 GET status:", res.status);
+      const result = await res.json();
+      console.log("📥 Raw response:", JSON.stringify(result));
+
+      if (res.ok && result.success) {
+        setEvents(result.data);
+        console.log("✅ GET OK, data:", result);
+      } else {
+        toast.error("❌ Tadbirlarni olishda xatolik.");
+      }
+    } catch (err) {
+      console.error("❌ Fetch error:", err);
+      toast.error("❌ Server bilan ulanishda muammo.");
+    }
+  };
+
+  // ✅ POST: Yangi tadbir yaratish
   const onSubmit = async (data) => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      toast.error("Token topilmadi!");
+      toast.error("❌ Token topilmadi!");
       return;
     }
 
@@ -40,47 +72,48 @@ const CreateEventModalPage = () => {
       if (res.ok) {
         toast.success("✅ Tadbir muvaffaqiyatli yaratildi!");
         reset();
-        setCreatedEvent(result);
-        setJoined(false);
-        setExtraClicked(false);
-        setShowModal(false); // modalni yopish
+        setShowModal(false);
+        fetchEvents();
       } else {
-        const errors = result.message?.message || ["Noma’lum xato"];
-        toast.error(errors.join("\n"));
+        const errMsg =
+          typeof result.message === "string"
+            ? result.message
+            : Array.isArray(result.message?.message)
+            ? result.message.message[0]
+            : "❌ Xatolik yuz berdi.";
+        toast.error(errMsg);
       }
-    } catch (error) {
-      toast.error("❌ Server bilan ulanishda xato yuz berdi.");
-      console.error(error);
+    } catch (err) {
+      console.error("❌ POST xatosi:", err);
+      toast.error("❌ Server bilan ulanishda xatolik.");
     }
   };
 
-  const handleJoinClick = () => {
-    setJoined(true);
-    toast.success("🎉 Siz tadbirga qo‘shildingiz!");
-  };
-
-  const handleExtraClick = () => {
-    setExtraClicked(true);
-    toast.info("ℹ️ Qo‘shimcha tugma bosildi!");
-  };
+  // ⏱ On first load
+  useEffect(() => {
+    fetchEvents();
+  }, []);
 
   return (
     <div className="px-4 py-6 max-w-5xl mx-auto">
-      {/* 📌 FORMNI OCHISH TUGMASI */}
+      {/* Modal tugmasi */}
       <div className="text-center">
+        <div className="flex items-center justify-between relative ">
+          <input type="text" className="border rounded-xl w-150 py-1 px-10  placeholder:text-black/70 font-semibold text-xl" placeholder="Search "/>
+          <FaSearch className="absolute left-4  top-4 text-gray-500"  />
         <button
           onClick={() => setShowModal(true)}
           className="bg-indigo-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-indigo-700 transition"
         >
           ➕ Yangi Tadbir Qo‘shish
         </button>
+        </div>
       </div>
 
-      {/* 📋 MODAL */}
+      {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
           <div className="bg-white w-full max-w-2xl p-6 rounded-lg shadow-lg relative">
-            {/* ❌ Yopish tugmasi */}
             <button
               onClick={() => setShowModal(false)}
               className="absolute top-3 right-4 text-red-600 hover:text-red-800"
@@ -88,7 +121,9 @@ const CreateEventModalPage = () => {
               <X />
             </button>
 
-            <h2 className="text-2xl font-bold text-center mb-6 text-indigo-700">🗓️ Yangi Tadbir Qo‘shish</h2>
+            <h2 className="text-2xl font-bold text-center mb-6 text-indigo-700">
+              🗓️ Yangi Tadbir Qo‘shish
+            </h2>
 
             <form onSubmit={handleSubmit(onSubmit)} className="grid md:grid-cols-2 gap-4">
               <input
@@ -141,57 +176,27 @@ const CreateEventModalPage = () => {
         </div>
       )}
 
-      {/* 🧾 Yaratilgan Event */}
-      {createdEvent && (
-        <div className="bg-white shadow-lg rounded-lg p-6 mt-8 border space-y-4">
-          <h3 className="text-2xl font-bold text-blue-700">{createdEvent.title}</h3>
-          <p className="text-gray-700">{createdEvent.description}</p>
+      {/* ✅ Barcha tadbirlar ro‘yxati */}
+      {events.length > 0 && (
+        <div className="mt-10">
+          <h2 className="text-2xl font-bold text-center text-indigo-700 mb-6">
+            📅 Barcha Tadbirlar
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {events.map((event) => (
+              <div key={event.id} className="bg-white border rounded-md shadow-md p-4 hover:shadow-lg transition">
+                <h3 className="text-xl font-semibold text-blue-700">{event.title}</h3>
+                <p className="text-gray-700 mt-1">{event.description}</p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-600">
-            <div className="flex items-center gap-2">
-              <Clock size={16} /> {createdEvent.time}
-            </div>
-            <div className="flex items-center gap-2">
-              <MapPin size={16} /> {createdEvent.location}
-            </div>
-            <div className="flex items-center gap-2">
-              <Book size={16} /> Kategoriya: {createdEvent.category}
-            </div>
-            <div className="flex items-center gap-2">📅 Sana: {createdEvent.date}</div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 mt-4">
-            <button
-              onClick={handleJoinClick}
-              disabled={joined}
-              className={`w-full px-4 py-2 rounded-md text-white font-semibold transition ${
-                joined ? "bg-green-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-              }`}
-            >
-              {joined ? (
-                <span className="flex items-center gap-2 justify-center">
-                  <CheckCircle size={18} /> Qo‘shildingiz
-                </span>
-              ) : (
-                "Tadbirga Qo‘shilish"
-              )}
-            </button>
-
-            <button
-              onClick={handleExtraClick}
-              disabled={extraClicked}
-              className={`w-full px-4 py-2 rounded-md text-white font-semibold transition ${
-                extraClicked ? "bg-purple-600 cursor-not-allowed" : "bg-gray-600 hover:bg-gray-700"
-              }`}
-            >
-              {extraClicked ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Info size={18} /> Bosildi
-                </span>
-              ) : (
-                "Qo‘shimcha Tugma"
-              )}
-            </button>
+                <div className="mt-3 text-sm text-gray-600 space-y-1">
+                  <p><Clock size={16} className="inline mr-1" /> {event.time}</p>
+                  <p><MapPin size={16} className="inline mr-1" /> {event.location}</p>
+                  <p><Book size={16} className="inline mr-1" /> {event.category}</p>
+                  <p>📅 {event.date}</p>
+                  <p>👤 {event.organizer?.name || "Noma'lum tashkilotchi"}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
