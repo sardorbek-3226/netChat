@@ -25,7 +25,7 @@ function Vacancies() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://18.139.0.163:8080/api/vacansy/get', {
+      const res = await fetch('http://13.250.48.172/api/vacansy/get', {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${token}` },
       });
@@ -70,7 +70,7 @@ function Vacancies() {
     };
     setSubmitting(true);
     try {
-      const res = await fetch('http://18.139.0.163:8080/api/vacansy/create', {
+      const res = await fetch('http://13.250.48.172:8080/api/vacansy/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ function Vacancies() {
             placeholder="Qidirish..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full w-[600px] pl-10 pr-4 py-2 border rounded-xl"
+            className=" w-[600px] pl-10 pr-4 py-2 border rounded-xl"
           />
         </div>
         <button

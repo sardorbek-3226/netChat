@@ -16,7 +16,7 @@ const Memontor = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch("http://18.139.0.163:8080/api/tutor/get-all", {
+    fetch("http://13.250.48.172:8080/api/tutor/get-all", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -49,7 +49,7 @@ const Memontor = () => {
       username: formData.username,
     };
 
-    fetch(`http://18.139.0.163:8080/api/tutor/update/${formData.username}`, {
+    fetch(`http://13.250.48.172:8080/api/tutor/update/${formData.username}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

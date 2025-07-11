@@ -26,7 +26,7 @@ const CreateEventModalPage = () => {
     if (!token) return toast.error("Token topilmadi!");
 
     try {
-      const res = await fetch("http://18.139.0.163:8080/api/events", {
+      const res = await fetch("http://13.250.48.172:8080/api/events", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -58,7 +58,7 @@ const CreateEventModalPage = () => {
     }
 
     try {
-      const res = await fetch("http://18.139.0.163:8080/api/events/create-events", {
+      const res = await fetch("http://13.250.48.172:8080/api/events/create-events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

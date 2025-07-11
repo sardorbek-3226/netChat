@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
-const API_CHAT = "http://18.139.0.163:8080/api/groq/chat";
-const API_HISTORY = "http://18.139.0.163:8080/api/groq/chat-ai/ansquery";
+const API_CHAT = "http://13.250.48.172:8080/api/groq/chat";
+const API_HISTORY = "http://13.250.48.172:8080/api/groq/chat-ai/ansquery";
 
 const users = [{ id: 1, name: "User" }];
 const STORAGE_KEY = "chat_history_user_1";

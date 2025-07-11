@@ -15,7 +15,7 @@ const NewPost = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch("http://18.139.0.163:8080/api/post/get", {
+    fetch("http://13.250.48.172:8080/api/post/get", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -58,7 +58,7 @@ const NewPost = () => {
       tags: formData.tags.split(",").map((t) => t.trim()),
     };
 
-    fetch("http://18.139.0.163:8080/api/post/create", {
+    fetch("http://13.250.48.172:8080/api/post/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
