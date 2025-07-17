@@ -15,7 +15,7 @@ const NewPost = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch("http://13.250.48.172:8080/api/post/get", {
+    fetch("https://simpledev.duckdns.org/api/post/get", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -24,6 +24,7 @@ const NewPost = () => {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.data)) {
+          console.log("POSTLAR:", data.data); // 👈 bu yerga qo‘shing
           setPosts(data.data);
         } else {
           console.error("Kutilmagan format:", data);
@@ -31,7 +32,7 @@ const NewPost = () => {
       })
       .catch((err) => console.error("GET xatolik:", err));
   }, []);
-
+  
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -42,9 +43,7 @@ const NewPost = () => {
 
   const toggleExpand = (index) => {
     setExpandedPosts((prev) =>
-      prev.includes(index)
-        ? prev.filter((i) => i !== index)
-        : [...prev, index]
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
   };
 
@@ -58,7 +57,7 @@ const NewPost = () => {
       tags: formData.tags.split(",").map((t) => t.trim()),
     };
 
-    fetch("http://13.250.48.172:8080/api/post/create", {
+    fetch("https://simpledev.duckdns.org/api/post/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -86,6 +85,31 @@ const NewPost = () => {
       p.title?.toLowerCase().includes(searchTerm) ||
       p.description?.toLowerCase().includes(searchTerm)
   );
+
+
+  const handleDelete = (id) => {
+    const token = localStorage.getItem("token");
+    const confirmDelete = window.confirm("Ushbu postni o‘chirmoqchimisiz?");
+    if (!confirmDelete) return;
+  
+    fetch(`https://simpledev.duckdns.org/api/post/delete/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("O‘chirishda xatolik yuz berdi");
+        setPosts((prev) => prev.filter((post) => post.id !== id));
+        alert("✅ Post muvaffaqiyatli o‘chirildi");
+      })
+      .catch((err) => {
+        console.error("DELETE xatolik:", err);
+        alert("❌ Postni o‘chirishda xatolik!");
+      });
+  };
+  
+
 
   return (
     <div className="px-4 py-6 w-full">
@@ -119,7 +143,9 @@ const NewPost = () => {
               <FaTimes />
             </button>
 
-            <h2 className="text-xl font-semibold mb-4">📝 Yangi Post Ma’lumotlari</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              📝 Yangi Post Ma’lumotlari
+            </h2>
 
             <form onSubmit={submitPost} className="grid gap-3">
               <input
@@ -167,8 +193,13 @@ const NewPost = () => {
           {filteredPosts.map((post, index) => {
             const isExpanded = expandedPosts.includes(index);
             return (
-              <div key={index} className="border p-4 rounded-lg shadow bg-white w-full">
-                <h3 className="text-xl font-bold text-indigo-700 mb-2">{post.title}</h3>
+              <div
+                key={index}
+                className="border p-4 rounded-lg shadow bg-white w-full "
+              >
+                <h3 className="text-xl font-bold text-indigo-700 mb-2">
+                  {post.title}
+                </h3>
                 <p className="text-gray-700">
                   {isExpanded || post.description.length < 200 ? (
                     post.description
@@ -192,15 +223,23 @@ const NewPost = () => {
                     qisqartirish
                   </span>
                 )}
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {post.tags?.map((tag, idx) => (
-                    <span
-                      key={idx}
-                      className="bg-indigo-100 text-indigo-700 text-xs font-medium px-2 py-1 rounded-full"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
+                <div className="flex flex-wrap justify-between mt-3">
+                  <div className="flex items-center gap-2 text-gray-500">
+                    {post.tags?.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-indigo-100 text-indigo-700 text-xs font-medium px-2 py-1 rounded-full"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => handleDelete(post.id)}
+                    className="border px-8 py-1 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold hover:opacity-90 transition"
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             );

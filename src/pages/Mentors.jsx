@@ -16,7 +16,7 @@ const Memontor = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch("http://13.250.48.172:8080/api/tutor/get-all", {
+    fetch("https://simpledev.duckdns.org/api/tutor/get-all", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -49,7 +49,7 @@ const Memontor = () => {
       username: formData.username,
     };
 
-    fetch(`http://13.250.48.172:8080/api/tutor/update/${formData.username}`, {
+    fetch(`https://simpledev.duckdns.org/api/tutor/update/${formData.username}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -157,17 +157,16 @@ const Memontor = () => {
                 alt="avatar"
               />
               <div className="flex items-center gap-5 justify-center">
-                <h3 className="text-xl font-semibold text-center">{tutor.name}</h3>
+                <h3 className="text-xl font-semibold text-center line-clamp-1">{tutor.name}</h3>
                 <p className="text-center text-xl text-gray-500">@{tutor.username}</p>
               </div>
-              <p className="mt-2 text-lg font-bold text-gray-600">{tutor.bio}</p>
+              <p className="mt-2 text-lg font-bold text-gray-600 line-clamp-3">{tutor.bio}</p>
               <p className="text-sm text-black/60 mt-1">{tutor.location}</p>
               <p className="text-md mt-1">{tutor.skills?.join(", ")}</p>
               <p className="text-md text-gray-800 mt-1">
                 🏷️ {tutor.tags?.join(", ")}
               </p>
 
-              {/* ✅ Bog‘lanish tugmasi */}
               <button
                 onClick={() => handleConnect(tutor.username)}
                 disabled={connectedTutors[tutor.username]}
@@ -185,7 +184,6 @@ const Memontor = () => {
         </div>
       )}
 
-      {/* Toast */}
       <ToastContainer />
     </div>
   );

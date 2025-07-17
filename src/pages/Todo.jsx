@@ -24,7 +24,7 @@ const Todo = () => {
     }
 
     try {
-      const res = await fetch("http://13.250.48.172:8080/api/events/create-events", {
+      const res = await fetch("https://simpledev.duckdns.org/api/events/create-events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

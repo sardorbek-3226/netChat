@@ -16,7 +16,7 @@ const Login = () => {
 
     try {
       const res = await axios.post(
-        "http://13.250.48.172:8080/api/auth/login",
+        "https://simpledev.duckdns.org/api/auth/login",
         { email, password: pas },
         {
           headers: {

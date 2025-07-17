@@ -15,7 +15,7 @@ const Users = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetch("http://13.250.48.172:8080/api/users/all", {
+    fetch("https://simpledev.duckdns.org/api/users/all", {
       method: "GET", // GET so‘rovi
       headers: {
         "Content-Type": "application/json",

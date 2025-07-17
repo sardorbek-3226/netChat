@@ -58,7 +58,7 @@ const Register = () => {
     }
 
     try {
-      const res = await axios.post("http://13.250.48.172:8080/api/auth/register", formData);
+      const res = await axios.post("https://simpledev.duckdns.org/api/auth/register", formData);
     
       const userData = res.data.user || res.data;
       const token = res.data.access_token;

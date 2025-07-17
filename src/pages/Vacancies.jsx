@@ -25,20 +25,32 @@ function Vacancies() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://13.250.48.172/api/vacansy/get', {
+      const res = await fetch('https://simpledev.duckdns.org/api/vacansy/get', {
         method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}` },
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       });
-      console.log(res);
-      
+  
+      console.log("Status:", res.status);
+  
       const data = await res.json();
-      if (Array.isArray(data.data)) setJobs(data.data);
-      else if (Array.isArray(data)) setJobs(data);
-      else {
-        console.error("Noto‘g‘ri formatdagi javob:", data);
-        toast.error("❌ Serverdan noto‘g‘ri maʼlumot keldi.");
-        setJobs([]);
+      console.log("Javob maʼlumoti:", data);
+  
+      if (res.ok) {
+        if (Array.isArray(data.data)) {
+          setJobs(data.data);
+        } else if (Array.isArray(data)) {
+          setJobs(data);
+        } else {
+          console.error("Noto‘g‘ri formatdagi javob:", data);
+          toast.error("❌ Serverdan noto‘g‘ri maʼlumot keldi.");
+          setJobs([]);
+        }
+      } else {
+        toast.error(`❌ Server xatosi: ${data.message || res.statusText}`);
       }
+  
     } catch (err) {
       console.error('GET xatolik:', err);
       toast.error('❌ Eʼlonlarni olishda xatolik.');
@@ -46,6 +58,7 @@ function Vacancies() {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchJobs();
@@ -70,7 +83,7 @@ function Vacancies() {
     };
     setSubmitting(true);
     try {
-      const res = await fetch('http://13.250.48.172:8080/api/vacansy/create', {
+      const res = await fetch('https://simpledev.duckdns.org/api/vacansy/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +127,7 @@ function Vacancies() {
         <MdWorkOutline className="text-blue-600 text-3xl" /> Vakansiyalar
       </h1>
 
-      <div className="mb-4 flex gap-2">
+      <div className="mb-4 flex justify-between ">
         <div className="relative w-full max-w-sm">
           <FiSearch className="absolute left-3 top-3 text-gray-500" />
           <input
@@ -122,7 +135,7 @@ function Vacancies() {
             placeholder="Qidirish..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className=" w-[600px] pl-10 pr-4 py-2 border rounded-xl"
+            className=" w-[600px] w-full pl-10 pr-4 py-2 border rounded-xl"
           />
         </div>
         <button
@@ -147,7 +160,6 @@ function Vacancies() {
       <span className="font-medium text-gray-700">E'lon qilindi:</span> {new Date(job.createdAt).toLocaleString()}
     </p>
 
-    {/* Murojaat qilish uchun tugma */}
     <div className="mt-4 flex justify-end">
       <button className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition">
         Murojaat qilish

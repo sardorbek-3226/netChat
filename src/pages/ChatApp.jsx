@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
-const API_CHAT = "http://13.250.48.172:8080/api/groq/chat";
-const API_HISTORY = "http://13.250.48.172:8080/api/groq/chat-ai/ansquery";
+const API_CHAT = "https://simpledev.duckdns.org/api/groq/chat";
+const API_HISTORY = "https://simpledev.duckdns.org/api/groq/chat-ai/ansquery";
 
 const users = [{ id: 1, name: "User" }];
 const STORAGE_KEY = "chat_history_user_1";
@@ -177,7 +177,7 @@ const ChatApp = () => {
           </div>
         )}
   
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 mb-18">
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.sender === "me" ? "justify-end" : "justify-start"}`}>
               <div
