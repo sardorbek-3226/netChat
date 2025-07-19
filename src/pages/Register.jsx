@@ -26,30 +26,30 @@ const Register = () => {
       ...prev,
       [name]: value,
     }));
-    
+
     if (fieldErrors[name]) {
-      setFieldErrors(prev => ({
+      setFieldErrors((prev) => ({
         ...prev,
-        [name]: false
+        [name]: false,
       }));
     }
   };
 
   const validateForm = () => {
     const errors = {};
-    
+
     if (!formData.name.trim()) errors.name = true;
     if (!formData.username.trim()) errors.username = true;
     if (!formData.email.trim()) errors.email = true;
     if (!formData.password.trim()) errors.password = true;
-    
+
     return errors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-    
+
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -58,16 +58,20 @@ const Register = () => {
     }
 
     try {
-      const res = await axios.post("https://simpledev.duckdns.org/api/auth/register", formData);
-    
+      const res = await axios.post(
+        "https://simpledev.duckdns.org/api/auth/register",
+        formData
+      );
+
       const userData = res.data.user || res.data;
       const token = res.data.access_token;
-    
+
+      
       if (!token) {
         setErrorMessage("Token olinmadi. Ro'yxatdan o'tishda muammo.");
         return;
       }
-    
+
       login(userData, token);
       navigate("/home");
     } catch (error) {
@@ -80,9 +84,11 @@ const Register = () => {
   };
 
   const getInputClass = (fieldName) => {
-    const baseClass = "w-full px-4 py-3 border rounded-lg transition-all duration-300 focus:outline-none focus:ring-2";
+    const baseClass =
+      "w-full px-4 py-3 border rounded-lg transition-all duration-300 focus:outline-none focus:ring-2";
     const errorClass = "border-red-500 focus:border-red-600 focus:ring-red-500";
-    const normalClass = "border-gray-300 focus:border-blue-600 focus:ring-blue-600";
+    const normalClass =
+      "border-gray-300 focus:border-blue-600 focus:ring-blue-600";
 
     return `${baseClass} ${fieldErrors[fieldName] ? errorClass : normalClass}`;
   };
@@ -102,7 +108,7 @@ const Register = () => {
               placeholder="Ism Familiya"
               value={formData.name}
               onChange={handleChange}
-              className={getInputClass('name')}
+              className={getInputClass("name")}
             />
             {fieldErrors.name && (
               <p className="text-red-600 text-sm mt-1 flex items-center">
@@ -119,7 +125,7 @@ const Register = () => {
               placeholder="Foydalanuvchi nomi"
               value={formData.username}
               onChange={handleChange}
-              className={getInputClass('username')}
+              className={getInputClass("username")}
             />
             {fieldErrors.username && (
               <p className="text-red-600 text-sm mt-1 flex items-center">
@@ -136,7 +142,7 @@ const Register = () => {
               placeholder="email@example.com"
               value={formData.email}
               onChange={handleChange}
-              className={getInputClass('email')}
+              className={getInputClass("email")}
             />
             {fieldErrors.email && (
               <p className="text-red-600 text-sm mt-1 flex items-center">
@@ -153,7 +159,7 @@ const Register = () => {
               placeholder="Parol"
               value={formData.password}
               onChange={handleChange}
-              className={getInputClass('password')}
+              className={getInputClass("password")}
             />
             {fieldErrors.password && (
               <p className="text-red-600 text-sm mt-1 flex items-center">
@@ -189,8 +195,8 @@ const Register = () => {
               Ro'yxatdan o'tish
             </Button>
 
-            {errorMessage && (
-              <p className="text-red-600 text-sm text-center">{errorMessage}</p>
+            {errorMessage.message && (
+              <p className="text-red-600 text-sm text-center">{errorMessage.message}</p>
             )}
           </div>
         </form>

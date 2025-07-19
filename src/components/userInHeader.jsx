@@ -1,54 +1,53 @@
-import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { Button } from "./ui/button"
-import axios from "axios"
-import { useAuth } from "../context/AuthContext"
-import { FaBars } from "react-icons/fa"
+import { useContext, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "./ui/button";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+import { FaBars } from "react-icons/fa";
 
 function UserInHeader({ menuOpen, setMenuOpen }) {
-  const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  const { user, login, logout ,email} = useAuth()
-  
+  const { user, login, logout, email } = useAuth();
+
   const fetchUser = async () => {
     const token = localStorage.getItem("token");
     if (!token || user) {
       setLoading(false);
       return;
     }
-  
+
     try {
-      const res = await axios.get("http://18.139.0.163:8080/api/auth/me", {
+      const res = await axios.get("simpledev.duckdns.org/api/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(res.data);
       
+      console.log(res.data);
+
       const userData = res.data.user || res.data;
       login(userData);
     } catch (err) {
       console.error("Foydalanuvchini olishda xatolik:", err);
-  
+
       if (err?.response?.status === 401) {
-        logout(); // faqat haqiqatan token noto‘g‘ri bo‘lsa
+        logout();
       }
     } finally {
       setLoading(false);
     }
   };
 
-
   useEffect(() => {
-    
-    fetchUser()
-  }, [])
+    fetchUser();
+  }, []);
 
   const handleLogout = () => {
-    logout()
-    navigate("/login")
-  }
+    logout();
+    navigate("/login");
+  };
 
   return (
     <div className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-[22px] bg-white/60 backdrop-blur-md ">
@@ -72,9 +71,10 @@ function UserInHeader({ menuOpen, setMenuOpen }) {
           <p className="text-black/70 italic">Yuklanmoqda...</p>
         ) : user ? (
           <>
-            <p className="text-black font-semibold">
-              👋 {email || "Imam salom"}
-            </p>
+            {/* <p className="text-black font-semibold">👋 {}</p> */}
+      <div className="hidden md:block">
+        <p className="text-sm text-gray-600">Email: {email || "Noma'lum"}</p>
+      </div>
             <Button onClick={handleLogout} variant="outline">
               Chiqish
             </Button>
@@ -85,9 +85,9 @@ function UserInHeader({ menuOpen, setMenuOpen }) {
           </Link>
         )}
       </div>
+
     </div>
-  )
+  );
 }
 
-export default UserInHeader
-
+export default UserInHeader;

@@ -49,7 +49,7 @@ const Memontor = () => {
       username: formData.username,
     };
 
-    fetch(`https://simpledev.duckdns.org/api/tutor/update/${formData.username}`, {
+    fetch(`https://simpledev.duckdns.org/api/tutor/update`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

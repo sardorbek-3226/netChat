@@ -7,13 +7,13 @@ const RedirectFromRoot = () => {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      navigate("/home"); // Login bo‘lgan foydalanuvchi
+      navigate("/home"); 
     } else {
-      navigate("/enter"); // Birinchi marta kirgan yoki login qilmagan foydalanuvchi
+      navigate("/enter");
     }
   }, [navigate]);
 
-  return null; // Sahifa hech narsa ko‘rsatmaydi, faqat yo‘naltiradi
+  return null; 
 };
 
 export default RedirectFromRoot;
